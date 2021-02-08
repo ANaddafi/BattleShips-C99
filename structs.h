@@ -1,3 +1,5 @@
+#define STRUCT
+
 struct User{
     char user_name[100];
     int total_score;
@@ -15,3 +17,18 @@ struct GameData{
     int winner;
     int finished;
 };
+
+
+void print_user_full(struct User user)
+{
+    printf("----------\n");
+
+    printf("%s, total = %d, cur = %d\n", user.user_name, user.total_score, user.current_score);
+
+    printf("----------\n");
+}
+
+void print_user(struct User user)
+{
+    printf("%s \t %d\n", user.user_name, user.total_score);
+}

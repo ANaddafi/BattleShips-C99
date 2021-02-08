@@ -1,5 +1,7 @@
 /// functions related to menu
 
+#define MENU
+
 #include <windows.h>
 #include "structs.h"
 #include "data.h"
@@ -112,7 +114,8 @@ struct User get_bot()
     return bot;
 }
 
-struct GameData init_game(int mod){
+struct GameData init_game(int mod)
+{
     struct User user1 = get_user(1);
     struct Map map1 = get_map(user1);
 
