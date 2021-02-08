@@ -1,6 +1,14 @@
 /// functions related to menu
 
-void show_menu()
+#include <windows.h>
+#include "structs.h"
+
+struct GameData show_menu();
+struct GameData load_game();
+struct GameData load_last_game();
+void exit_game();
+
+struct GameData show_menu()
 {
     /// displays the initial menu of the game
     /// returns a game status
@@ -18,4 +26,53 @@ void show_menu()
 
     int user_input = 0;
     scanf("%d", &user_input);
+
+    switch(user_input)
+    {
+        case 1:
+
+            break;
+        case 2:
+
+            break;
+        case 3:
+            return load_game();
+
+        case 4:
+            return load_last_game();
+
+        case 5:
+            break;
+
+        case 6:
+            break;
+
+        case 7:
+            exit_game();
+            break;
+
+        default: // invalid input
+            printf("\nInvalid input! please try again!");
+            Sleep(1000);
+            system("cls");
+            return show_menu();
+    }
+}
+
+struct GameData load_game()
+{
+
+}
+
+struct GameData load_last_game()
+{
+
+}
+
+void exit_game()
+{
+    system("cls");
+    printf("Thanks for playing!\n");
+    Sleep(2000);
+    exit(0);
 }
