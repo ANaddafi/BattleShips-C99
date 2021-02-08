@@ -34,6 +34,7 @@ struct GameData show_menu()
 
     int user_input = 0;
     scanf("%d", &user_input);
+    system("cls");
 
     struct GameData ret_game;
 
@@ -75,6 +76,7 @@ struct GameData show_menu()
 
 struct User get_user(int turn)
 {
+    system("cls");
     printf("Please choose a user for player%d:\n\n", turn);
     printf("1) Choose from available users\n");
     printf("2) New user\n\n>> ");
@@ -107,7 +109,7 @@ struct User get_bot()
 {
     struct User bot;
 
-    strcpy(bot.user_name, "_bot_");
+    strcpy(bot.user_name, "Computer");
     bot.total_score = 0;
     bot.current_score = 0;
 
@@ -132,6 +134,10 @@ struct GameData init_game(int mod)
         user2 = get_bot();
         map2 = get_bot_map();
     }
+
+    system("cls");
+    printf("<<< %s VS %s >>>\n", user1.user_name, user2.user_name);
+    Sleep(2000);
 
     struct GameData ret_game;
 

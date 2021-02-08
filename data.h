@@ -35,7 +35,7 @@ void print_user_list()
 
     FILE *fusers = fopen(DIST_USER_LIST, "rb");
     if(fusers == NULL)
-        error("FILE NOT FOUND!\n", 1);
+        fclose(fusers), error("FILE NOT FOUND!\n", 1);
 
     int cnt = 1;
     struct User tmp_user;
@@ -57,7 +57,7 @@ struct User get_user_by_order(int ord)
 
     FILE *fusers = fopen(DIST_USER_LIST, "rb");
     if(fusers == NULL)
-        error("FILE NOT FOUND!\n", 1);
+        fclose(fusers), error("FILE NOT FOUND!\n", 1);
 
 
     while(ord > 0 && fread(&tmp_user, sizeof(struct User), 1, fusers))
@@ -76,7 +76,7 @@ struct User get_user_by_order(int ord)
 
 struct User get_user_from_file()
 {
-    /// not complete
+    system("cls");
 
     struct User ret_user;
 
@@ -91,12 +91,39 @@ struct User get_user_from_file()
     return ret_user;
 }
 
+void add_new_user(struct User new_user)
+{
+    FILE *fusers = fopen(DIST_USER_LIST, "ab");
+    if(fusers == NULL)
+        error("FILE NOT FOUND!\n", 1);
+
+    if(fwrite(&new_user, sizeof(struct User), 1, fusers) < 1)
+        error("Something went wrong!\n", 1);
+
+    fclose(fusers);
+}
+
 struct User get_new_user()
 {
     /// not complete
 
-    struct User ret_user;
-    return ret_user;
+    struct User new_user;
+    printf("Enter your username:\n");
+
+    char user_input[100];
+    scanf("%s", user_input);
+
+    strcpy(new_user.user_name, user_input);
+    new_user.total_score = 0;
+    new_user.current_score = 0;
+
+    add_new_user(new_user);
+
+    system("cls");
+    printf("Welcome, %s!", user_input);
+    error("\n", 0);
+
+    return new_user;
 }
 
 struct Map get_map(struct User user)
