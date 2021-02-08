@@ -4,12 +4,14 @@ struct User{
     int current_score;
 };
 
-
 struct Map{
 
 };
 
 struct GameData{
-    struct User user[2];
-    struct Map map[2];
+    struct User users[2];
+    struct Map maps[2];
+    int used_rocket[2];
+    int winner;
+    int finished;
 };
