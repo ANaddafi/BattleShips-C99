@@ -40,11 +40,11 @@ struct GameData{
 
 void print_user_full(struct User user)
 {
-    printf("----------\n");
+    //printf("----------\n");
 
     printf("%s, total = %d, cur = %d\n", user.user_name, user.total_score, user.current_score);
 
-    printf("----------\n");
+    //printf("----------\n");
 }
 
 void print_user(struct User user)
@@ -89,4 +89,27 @@ int get_lenght(struct Ship ship)
         drow = -drow;
     int res = (dcol + 1) * (drow + 1);
     return res;
+}
+
+void show_stats(struct GameData gamedata)
+{
+    printf("------------------------------\nGame Stats:\n\n");
+    printf("User1 :");
+    print_user_full(gamedata.users[0]);
+
+    printf("User2 :");
+    print_user_full(gamedata.users[1]);
+
+    printf("Map of User1: \n");
+    view_map(gamedata.maps[0]);
+
+    printf("\nMap of User2: \n");
+    view_map(gamedata.maps[1]);
+
+    printf("User1 has used %d rockets, User2 has used %d tockers\n", gamedata.used_rocket[0], gamedata.used_rocket[1]);
+
+    printf("Winner of the game is %s\n", gamedata.winner == -1 ? "N/A" : gamedata.users[gamedata.winner].user_name);
+    printf("The game is %sfinished.\n", gamedata.finished == 1 ? " " : "not ");
+
+    printf("------------------------------");
 }
