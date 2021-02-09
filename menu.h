@@ -13,6 +13,7 @@ struct GameData init_game(int mod);
 
 struct User get_user();
 struct User get_bot();
+struct Map get_map();
 
 void exit_game();
 
@@ -116,10 +117,42 @@ struct User get_bot()
     return bot;
 }
 
+
+struct Map get_map()
+{
+    system("cls");
+    printf("Please choose your map:\n\n");
+    printf("1) Choose from available maps\n");
+    printf("2) New map\n\n>> ");
+
+    int user_input = 0;
+    scanf("%d", &user_input);
+
+    struct Map ret_map;
+    switch(user_input)
+    {
+        case 1:
+            ret_map = get_map_from_file();
+            break;
+
+        case 2:
+            ret_map = get_new_map();
+            break;
+
+        default:
+            printf("\nInvalid input! please try again!");
+            Sleep(1000);
+            system("cls");
+            ret_map = get_map();
+    }
+
+    return ret_map;
+}
+
 struct GameData init_game(int mod)
 {
     struct User user1 = get_user(1);
-    struct Map map1 = get_map(user1);
+    struct Map map1 = get_map();
 
     struct User user2;
     struct Map map2;
@@ -127,7 +160,7 @@ struct GameData init_game(int mod)
     if(mod == 0)
     {
         user2 = get_user(2);
-        map2 = get_map(user2);
+        map2 = get_map();
     }
     else
     {

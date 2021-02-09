@@ -2,24 +2,32 @@
 
 #define DATA
 #include <windows.h>
+#include "map.h"
 
 #ifndef STRUCT
 #include "structs.h"
 #endif // STRUCT
 
 #define DIST_USER_LIST "./saves/testdata.bin"
+#define DIST_MAP_LIST "./maps/map_list.txt"
 
 //////////////////////////////////////////////////////
 
 struct User get_user_from_file();
 struct User get_user_by_order(int ord);
-struct Map get_map(struct User user);
+struct User get_new_user();
+
+struct Map get_map_by_order(int ord);
+struct Map get_map_from_file();
+struct Map get_new_map();
 struct Map get_bot_map();
-void error(char err[1000], int ext);
+
+void log(char err[1000], int ext);
 void print_user_list();
+void print_map_list();
 
-
-void error(char err[1000], int ext)
+/// error -> log
+void log(char err[1000], int ext)
 {
     printf("%s", err);
     Sleep(1500);
@@ -35,7 +43,7 @@ void print_user_list()
 
     FILE *fusers = fopen(DIST_USER_LIST, "rb");
     if(fusers == NULL)
-        fclose(fusers), error("FILE NOT FOUND!\n", 1);
+        fclose(fusers), log("FILE NOT FOUND!\n", 1);
 
     int cnt = 1;
     struct User tmp_user;
@@ -51,13 +59,13 @@ struct User get_user_by_order(int ord)
 
     if(ord <= 0)
     {
-        error("Invalid input, try again!\n", 0);
+        log("Invalid input, try again!\n", 0);
         return get_user_from_file();
     }
 
     FILE *fusers = fopen(DIST_USER_LIST, "rb");
     if(fusers == NULL)
-        fclose(fusers), error("FILE NOT FOUND!\n", 1);
+        fclose(fusers), log("FILE NOT FOUND!\n", 1);
 
 
     while(ord > 0 && fread(&tmp_user, sizeof(struct User), 1, fusers))
@@ -67,7 +75,7 @@ struct User get_user_by_order(int ord)
 
     if(ord > 0)
     {
-        error("Invalid input, try again!\n", 0);
+        log("Invalid input, try again!\n", 0);
         return get_user_from_file();
     }
 
@@ -95,18 +103,16 @@ void add_new_user(struct User new_user)
 {
     FILE *fusers = fopen(DIST_USER_LIST, "ab");
     if(fusers == NULL)
-        error("FILE NOT FOUND!\n", 1);
+        log("FILE NOT FOUND!\n", 1);
 
     if(fwrite(&new_user, sizeof(struct User), 1, fusers) < 1)
-        error("Something went wrong!\n", 1);
+        log("Something went wrong!\n", 1);
 
     fclose(fusers);
 }
 
 struct User get_new_user()
 {
-    /// not complete
-
     struct User new_user;
     printf("Enter your username:\n");
 
@@ -121,17 +127,88 @@ struct User get_new_user()
 
     system("cls");
     printf("Welcome, %s!", user_input);
-    error("\n", 0);
+    log("\n", 0);
 
     return new_user;
 }
 
-struct Map get_map(struct User user)
+struct Map get_map_by_order(int ord)
 {
-    /// not complete
+    if(ord <= 0)
+    {
+        log("Invalid input, try again!\n", 0);
+        return get_map_from_file();
+    }
+
+    FILE *fmaps = fopen(DIST_MAP_LIST, "r");
+    if(fmaps == NULL)
+        fclose(fmaps), log("FILE NOT FOUND!\n", 1);
+
+    int cnt;
+    fscanf(fmaps, "%d", &cnt);
+    if(ord > cnt)
+    {
+        fclose(fmaps);
+        log("Invalid input, try again!\n", 0);
+        return get_map_from_file();
+    }
+
+    char map_name[100];
+    while(ord >= 1)
+        fscanf(fmaps, "%s", map_name), ord --;
+
+    fclose(fmaps);
+
+    return get_map_from_map_file(map_name);
+}
+
+void print_map_list()
+{
+    printf("Choose one of these maps:\n");
+
+    FILE *fmaps = fopen(DIST_MAP_LIST, "r");
+    if(fmaps == NULL)
+        fclose(fmaps), log("FILE NOT FOUND!\n", 1);
+
+    int cnt=0, i;
+    fscanf(fmaps, "%d", &cnt);
+
+    for(i = 0; i < cnt; i++)
+    {
+        char map_name[100];
+        fscanf(fmaps, "%s", map_name);
+        printf("%d) %s\n", i+1, map_name);
+    }
+
+    fclose(fmaps);
+}
+
+struct Map get_map_from_file()
+{
+    system("cls");
 
     struct Map ret_map;
+
+    system("cls");
+    print_map_list();
+
+    int user_input;
+    printf("\n>> ");
+    scanf("%d", &user_input);
+
+    ret_map = get_map_by_order(user_input);
+
+    //printf("\n:TEST:\n");
+    view_map(ret_map);
+    //printf(":TEST:\n");
+    Sleep(3000);
+
     return ret_map;
+}
+
+struct Map get_new_map()
+{
+
 }
 
 struct Map get_bot_map()

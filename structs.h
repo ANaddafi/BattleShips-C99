@@ -15,8 +15,9 @@ struct point
 
 struct Ship
 {
+    /// if a ship explodes, must be removed from the list
     struct point top, back;
-    int exploded, lenght;
+    int lenght;
     struct Ship *next;
 };
 
@@ -64,7 +65,8 @@ void view_map(struct Map mp)
         printf("%c ", i+'a');
 
         for(j = 0; j < LEN; j++)
-            printf("%c ", mp.view[i][j]);
+            //printf("%c ", mp.view[i][j]);
+            printf("%c ", mp.view[i][j] == 'W' ? '.' : '#');
         printf("\n");
     }
 }
