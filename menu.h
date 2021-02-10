@@ -184,6 +184,7 @@ struct GameData init_game(int mod)
 
     ret_game.winner = -1;
     ret_game.finished = 0;
+    ret_game.turn = 0;
     ret_game.used_rocket[0] = 0;
     ret_game.used_rocket[1] = 0;
 
@@ -193,11 +194,6 @@ struct GameData init_game(int mod)
 struct GameData load_game()
 {
 
-}
-
-struct GameData load_last_game()
-{
-    return load_last_game_file();
 }
 
 void exit_game()

@@ -10,7 +10,7 @@
 
 void exit_with_save(struct GameData *game);
 void save_game(struct GameData *game);
-void play_turn(int turn, struct GameData* game, int mod);
+void play_turn(struct GameData* game, int mod);
 
 //int min(int a, int b){return a > b ? b : a;}
 //int max(int a, int b){return a > b ? a : b;}
@@ -61,7 +61,7 @@ void attack(int col, char row, int turn, struct GameData *game)
     {
         system("cls");
         log("You cannot shot this cell! Select another one!\n", 0);
-        play_turn(turn, game, 0);
+        play_turn(game, 0);
         return;
     }
     else if(target == WATER)
@@ -69,7 +69,7 @@ void attack(int col, char row, int turn, struct GameData *game)
         game->maps[1-turn].leaked[row-'a'][col-1] = WATER;
         return;
     }
-    else if(target == SHIP || ('0' <= target && target <= '9'))
+    else if(target == SHIP)
     {
         game->maps[1-turn].leaked[row-'a'][col-1] = EXP;
 
@@ -103,7 +103,7 @@ void attack(int col, char row, int turn, struct GameData *game)
             prefix(turn, game->users[turn]);
             view_map_leaked(game->maps[1-turn]);
             log("\nYAY! You got one more move!\n", 0);
-            play_turn(turn, game, 1);
+            play_turn(game, 1);
         }
 
         return;
@@ -119,14 +119,15 @@ void play_bot_turn(int turn, struct GameData* game, int mod) // mod=1 -> bonus m
 
 }
 
-void play_turn(int turn, struct GameData* game, int mod) // mod=1 -> bonus move!
+void play_turn(struct GameData* game, int mod) // mod=1 -> bonus move!
 {
+    int turn = game->turn;
     struct User cur_user = game->users[turn];
 
     prefix(turn, cur_user);
     view_map_leaked(game->maps[1-turn]);
 
-    if(cur_user.user_name == BOT_NAME)
+    if(strcmp(cur_user.user_name, BOT_NAME) == 0)
     {
         play_bot_turn(turn, game, 0);
         return;
@@ -146,7 +147,7 @@ void play_turn(int turn, struct GameData* game, int mod) // mod=1 -> bonus move!
 
     if(row == 's'){
         save_game(game);
-        play_turn(turn, game, 0);
+        play_turn(game, 0);
     }
     else if(row == 'x')
         exit_with_save(game);
@@ -156,7 +157,7 @@ void play_turn(int turn, struct GameData* game, int mod) // mod=1 -> bonus move!
         Sleep(1500);
         fflush(stdin);
 
-        play_turn(turn, game, 0);
+        play_turn(game, 0);
     }
     else
     {
@@ -177,12 +178,10 @@ void play_game(struct GameData game)
 {
     while(! game.finished)
     {
-        play_turn(0, &game, 0);
-        if(game.finished)
-            break;
-
-        play_turn(1, &game, 0);
+        play_turn(&game, 0);
+        game.turn = 1-game.turn;
     }
+
 
     if(game.finished)
     {
@@ -205,6 +204,7 @@ void play_game(struct GameData game)
 
 void save_game(struct GameData *game)
 {
+    save_game_file(game);
     printf("\n--SAVED--\n!");
 }
 

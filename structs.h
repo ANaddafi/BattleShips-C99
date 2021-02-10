@@ -38,8 +38,8 @@ struct GameData{
     struct User users[2];
     struct Map maps[2];
     int used_rocket[2];
-    int winner;
-    int finished;
+    int turn;
+    int winner, finished;
 };
 
 /////////////////////////////////
@@ -176,34 +176,59 @@ void insert_ship(struct Ship *head, struct point p1, struct point p2)
 
 void make_ship(struct Map *mp)
 {
+    mp->ships_head = (struct Ship*)malloc(sizeof(struct Ship));
+    mp->ships_head->next = NULL;
+
     int i, j;
+    int checked[LEN][LEN];
+    for(i = 0; i < LEN; i++)
+        for(j = 0; j < LEN; j++)
+            checked[i][j] = 0;
+
     for(i = 0; i < LEN; i++)
         for(j = 0; j < LEN; j++)
         {
-            if(mp->view[i][j] == WATER || mp->view[i][j] == SHIP)
+            if(mp->view[i][j] == WATER || checked[i][j] != 0)
                 continue;
 
+            int explod = 0;
             struct point p1, p2;
             p1 = get_point(j, i+'a');
 
-            if(mp->view[i][j] == 'V')
+            if(i+1 < LEN && mp->view[i+1][j] == SHIP)
             {
                 int t = i;
-                while(t < LEN && mp->view[t][j] == 'V')
-                    mp->view[t][j] = SHIP, t ++;
+                while(t < LEN && mp->view[t][j] == SHIP)
+                {
+                    checked[t][j] = 1;
+                    if(mp->leaked[t][j] == EXP)
+                        explod ++;
+                    t++;
+                }
 
                 p2 = get_point(j, t-1+'a');
             }
-            else if(mp->view[i][j] == 'H')
+            else if(j+1 < LEN && mp->view[i][j+1] == SHIP)
             {
                 int t = j;
-                while(t < LEN && mp->view[i][t] == 'H')
-                    mp->view[i][t] = SHIP, t ++;
+                while(t < LEN && mp->view[i][t] == SHIP)
+                {
+                    checked[i][t] = 1;
+                    if(mp->leaked[i][t] == EXP)
+                        explod ++;
+                    t++;
+                }
 
                 p2 = get_point(t-1, i+'a');
             }
+            else
+            {
+                p2 = p1;
+                checked[i][j] = 1;
+            }
 
             insert_ship(mp->ships_head, p1, p2);
+            mp->ships_head->next->remain -= explod;
         }
 }
 
@@ -267,6 +292,7 @@ void show_stats(struct GameData gamedata)
 
     printf("User1 has used %d rockets, User2 has used %d tockers\n", gamedata.used_rocket[0], gamedata.used_rocket[1]);
 
+    printf("It is user%d's turn\n", gamedata.turn+1);
     printf("Winner of the game is %s\n", gamedata.winner == -1 ? "N/A" : gamedata.users[gamedata.winner].user_name);
     printf("The game is %sfinished.\n", gamedata.finished == 1 ? " " : "not ");
 

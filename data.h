@@ -10,7 +10,7 @@
 
 #define DIST_USER_LIST "./saves/testdata.bin"
 #define DIST_MAP_LIST "./maps/map_list.txt"
-#define DIST_GAME_SAVE "./saves/testgame.txt"
+#define DIST_LAST_GAME_SAVE "./saves/lastgame.bin"
 
 //////////////////////////////////////////////////////
 
@@ -40,6 +40,7 @@ void log(char err[1000], int ext)
         system("cls");
 }
 
+
 struct GameData load_game_file(char game_name[100])
 {
     char tmp_name[100];
@@ -49,27 +50,38 @@ struct GameData load_game_file(char game_name[100])
     struct GameData ret_game;
 }
 
-struct GameData load_last_game_file()
+
+struct GameData load_last_game()
 {
-
-}
-
-void save_game_file(struct GameData gamedata)
-{
-    /// its just for debuggin, use different files for final game
-
-    FILE *fgame = fopen(DIST_GAME_SAVE, "wb");
+    FILE *fgame = fopen(DIST_LAST_GAME_SAVE, "rb");
     if(fgame == NULL)
         log("FILE NOT FOUND!\n", 1);
 
-    /*if(fwrite(&gamedata, sizeof(struct GameData), 1, fgame) < 1)
-        log("Something went wrong!\n", 1);*/
+    struct GameData gamedata;
+    if(fread(&gamedata, sizeof(struct GameData), 1, fgame) < 1)
+        log("Something went wrong!\n", 1);
 
-    /// you should save ships of maps!!
-    /// think of saving each game in a separated folder!
+    fclose(fgame);
+
+    make_ship(&(gamedata.maps[0]));
+    make_ship(&(gamedata.maps[1]));
+
+    return gamedata;
+}
+
+
+void save_game_file(struct GameData *gamedata)
+{
+    FILE *fgame = fopen(DIST_LAST_GAME_SAVE, "wb");
+    if(fgame == NULL)
+        log("FILE NOT FOUND!\n", 1);
+
+    if(fwrite(gamedata, sizeof(struct GameData), 1, fgame) < 1)
+        log("Something went wrong!\n", 1);
 
     fclose(fgame);
 }
+
 
 void print_user_list()
 {
@@ -86,6 +98,7 @@ void print_user_list()
 
     fclose(fusers);
 }
+
 
 struct User get_user_by_order(int ord)
 {
@@ -116,6 +129,7 @@ struct User get_user_by_order(int ord)
     return tmp_user;
 }
 
+
 struct User get_user_from_file()
 {
     system("cls");
@@ -133,6 +147,7 @@ struct User get_user_from_file()
     return ret_user;
 }
 
+
 void add_new_user(struct User new_user)
 {
     FILE *fusers = fopen(DIST_USER_LIST, "ab");
@@ -144,6 +159,7 @@ void add_new_user(struct User new_user)
 
     fclose(fusers);
 }
+
 
 struct User get_new_user()
 {
@@ -167,6 +183,7 @@ struct User get_new_user()
 
     return new_user;
 }
+
 
 struct Map get_map_by_order(int ord)
 {
@@ -198,6 +215,7 @@ struct Map get_map_by_order(int ord)
     return get_map_from_map_file(map_name);
 }
 
+
 void print_map_list()
 {
     printf("Choose one of these maps:\n");
@@ -218,6 +236,7 @@ void print_map_list()
 
     fclose(fmaps);
 }
+
 
 struct Map get_map_from_file()
 {
@@ -242,14 +261,16 @@ struct Map get_map_from_file()
     return ret_map;
 }
 
+
 struct Map get_new_map()
 {
 
 }
 
+
 struct Map get_bot_map()
 {
-    /// mot complete
+    /// not complete
 
     struct Map bot_map;
     return bot_map;
