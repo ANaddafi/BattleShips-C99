@@ -17,7 +17,7 @@ struct Ship
 {
     /// if a ship explodes, must be removed from the list
     struct point top, back;
-    int lenght;
+    int lenght, remain;
     int is_destroyed;
     struct Ship *next;
 };
@@ -115,6 +115,47 @@ int get_lenght(struct Ship ship)
         drow = -drow;
     int res = (dcol + 1) * (drow + 1);
     return res;
+}
+
+struct Ship* find_ship(struct Map mp, int col, char row)
+{
+    struct Ship* tmp_ship = mp.ships_head->next;
+
+    col = col - 1;
+    while(tmp_ship != NULL)
+    {
+        int C1 = tmp_ship->back.col,
+            C2 = tmp_ship->top.col;
+        char R1 = tmp_ship->back.row,
+             R2 = tmp_ship->top.row;
+
+        if(min(C1, C2) <= col && col <= max(C1, C2) &&
+                min(R1, R2) <= row && row <= max(R1, R2))
+            return tmp_ship;
+
+        tmp_ship = tmp_ship->next;
+    }
+    return NULL;
+}
+
+int destroy(struct Map *mp)
+{
+    struct Ship* tmp_ship = mp->ships_head->next,
+                    *lst_ship = mp->ships_head;
+
+    while(tmp_ship != NULL)
+    {
+        if(tmp_ship->is_destroyed == 1)
+        {
+            lst_ship->next = tmp_ship->next;
+            free(tmp_ship);
+            return 1;
+        }
+
+        lst_ship = tmp_ship;
+        tmp_ship = tmp_ship->next;
+    }
+    return 0;
 }
 
 void show_stats(struct GameData gamedata)

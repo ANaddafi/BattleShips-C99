@@ -1,6 +1,8 @@
 /// functions related to menu
 
 #define MENU
+#define BOT_NAME "_bot_"
+#define CLS system("cls")
 
 #include <windows.h>
 #include "structs.h"
@@ -110,7 +112,7 @@ struct User get_bot()
 {
     struct User bot;
 
-    strcpy(bot.user_name, "Computer");
+    strcpy(bot.user_name, BOT_NAME);
     bot.total_score = 0;
     bot.current_score = 0;
 

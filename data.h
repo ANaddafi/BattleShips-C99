@@ -237,7 +237,7 @@ struct Map get_map_from_file()
     //printf("\n:TEST:\n");
     view_map(ret_map);
     //printf(":TEST:\n");
-    Sleep(3000);
+    //Sleep(3000);
 
     return ret_map;
 }
