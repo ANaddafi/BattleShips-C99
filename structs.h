@@ -54,48 +54,84 @@ void print_user_full(struct User user)
     //printf("----------\n");
 }
 
+
 void print_user(struct User user)
 {
     printf("%s \t %d\n", user.user_name, user.total_score);
 }
 
+
 void view_map(struct Map mp)
 {
     int i, j;
 
-    printf(" ");
+    for(j = 0; j < (LEN+1); j++)  printf("        ");   printf("\n");
+
+    printf("        ");
     for(i = 1; i <= LEN; i++)
-        printf(" %d", i);
+        printf("   %-02d   ", i);
     printf("\n");
 
-    for(i = 0; i < LEN; i++){
-        printf("%c ", i+'a');
+    for(j = 0; j < (LEN+1); j++)  printf("        ");   printf("\n");
+
+    printf("        ");
+    for(j = 0; j < 8*(LEN); j++)  printf("-");  printf("\n");
+
+
+    for(i = 0; i < LEN; i++)
+    {
+        for(j = 0; j < (LEN+1); j++)  printf("       |");   printf("\n");
+
+        printf("   %c   |", i+'A');
 
         for(j = 0; j < LEN; j++)
-            //printf("%c ", mp.view[i][j]);
-            printf("%c ", mp.view[i][j] == 'W' ? '.' : '#');
+            printf("   %c   |", mp.view[i][j] == 'W' ? WATER : SHIP);
         printf("\n");
+
+        for(j = 0; j < (LEN+1); j++)  printf("       |");   printf("\n");
+
+        printf("        ");
+        for(j = 0; j < 8*(LEN); j++)  printf("-");    printf("\n");
+
     }
 }
+
 
 void view_map_leaked(struct Map mp)
 {
     int i, j;
 
-    printf(" ");
+    for(j = 0; j < (LEN+1); j++)  printf("        ");   printf("\n");
+
+    printf("        ");
     for(i = 1; i <= LEN; i++)
-        printf(" %d", i);
+        printf("   %-02d   ", i);
     printf("\n");
 
-    for(i = 0; i < LEN; i++){
-        printf("%c ", i+'a');
+    for(j = 0; j < (LEN+1); j++)  printf("        ");   printf("\n");
+
+    printf("        ");
+    for(j = 0; j < 8*(LEN); j++)  printf("-");  printf("\n");
+
+
+    for(i = 0; i < LEN; i++)
+    {
+        for(j = 0; j < (LEN+1); j++)  printf("       |");   printf("\n");
+
+        printf("   %c   |", i+'A');
 
         for(j = 0; j < LEN; j++)
-            printf("%c ", mp.leaked[i][j]);
-            //printf("%c ", mp.leaked[i][j] == 'W' ? '.' : '#');
+            printf("   %c   |", mp.leaked[i][j]);
         printf("\n");
+
+        for(j = 0; j < (LEN+1); j++)  printf("       |");   printf("\n");
+
+        printf("        ");
+        for(j = 0; j < 8*(LEN); j++)  printf("-");    printf("\n");
+
     }
 }
+
 
 struct point get_point(int col, char row)
 {
@@ -103,7 +139,8 @@ struct point get_point(int col, char row)
     ret_point.row = row;
     ret_point.col = col;
     return ret_point;
-};
+}
+
 
 int get_lenght(struct Ship ship)
 {
@@ -116,6 +153,7 @@ int get_lenght(struct Ship ship)
     int res = (dcol + 1) * (drow + 1);
     return res;
 }
+
 
 struct Ship* find_ship(struct Map mp, int col, char row)
 {
@@ -138,6 +176,7 @@ struct Ship* find_ship(struct Map mp, int col, char row)
     return NULL;
 }
 
+
 int destroy(struct Map *mp)
 {
     struct Ship* tmp_ship = mp->ships_head->next,
@@ -157,6 +196,7 @@ int destroy(struct Map *mp)
     }
     return 0;
 }
+
 
 void show_stats(struct GameData gamedata)
 {

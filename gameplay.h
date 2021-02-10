@@ -46,6 +46,13 @@ void show_water(struct Map *mp, struct Ship* ship)
             mp->leaked[i][j] = EXPSHIP;
 }
 
+void prefix(int turn, struct User cur_user)
+{
+    system("cls");
+    printf("Player%d: %s\t", turn+1, cur_user.user_name);
+    printf("Game Score: %d\tTotal Score: %d\n", cur_user.current_score, cur_user.total_score);
+}
+
 void attack(int col, char row, int turn, struct GameData *game)
 {
     char target = game->maps[1-turn].view[row-'a'][col-1];
@@ -93,8 +100,9 @@ void attack(int col, char row, int turn, struct GameData *game)
             game->winner = turn;
         }
         else{
-            system("cls");
-            log("YAY! You got one more move!\n", 0);
+            prefix(turn, game->users[turn]);
+            view_map_leaked(game->maps[1-turn]);
+            log("\nYAY! You got one more move!\n", 0);
             play_turn(turn, game, 1);
         }
 
@@ -111,10 +119,7 @@ void play_turn(int turn, struct GameData* game, int mod) // mod=1 -> bonus move!
 {
     struct User cur_user = game->users[turn];
 
-    system("cls");
-    printf("Player%d: %s\n", turn+1, game->users[turn].user_name);
-    printf("Game Score: %d\tTotal Score: %d\n\n", game->users[turn].current_score, game->users[turn].total_score);
-
+    prefix(turn, cur_user);
     view_map_leaked(game->maps[1-turn]);
 
     if(cur_user.user_name == BOT_NAME)
@@ -123,8 +128,8 @@ void play_turn(int turn, struct GameData* game, int mod) // mod=1 -> bonus move!
         return;
     }
 
-    printf("\nEnter Your Move: \n");
-    printf("S for Save, E for Exit, Coordinates for shoot (row col):\n\n>> ");
+    printf("\nEnter Your Move: \t");
+    printf("(S for Save, X for Exit, Coordinates for shoot (row col))\n>> ");
 
     char row;
     int col;
@@ -132,11 +137,14 @@ void play_turn(int turn, struct GameData* game, int mod) // mod=1 -> bonus move!
     fflush(stdin);
     scanf("%c", &row);
 
-    if(row == 'S'){
+    if('A' <= row && row <= 'Z')
+        row = row - 'A' + 'a';
+
+    if(row == 's'){
         save_game(game);
         play_turn(turn, game, 0);
     }
-    else if(row == 'E')
+    else if(row == 'x')
         exit_with_save(game);
     else if(row < 'a' || row > 'j')
     {
@@ -154,9 +162,7 @@ void play_turn(int turn, struct GameData* game, int mod) // mod=1 -> bonus move!
         if(mod == 1)
             return;
 
-        system("cls");
-        printf("Player%d: %s\n", turn+1, game->users[turn].user_name);
-        printf("Game Score: %d\tTotal Score: %d\n\n", game->users[turn].current_score, game->users[turn].total_score);
+        prefix(turn, cur_user);
         view_map_leaked(game->maps[1-turn]);
         Sleep(1500);
     }
