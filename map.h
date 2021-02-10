@@ -16,6 +16,7 @@ void insert(struct Ship *head, struct Ship ship)
     new_ship->back.col  = ship.back.col;
     new_ship->back.row  = ship.back.row;
     new_ship->lenght    = ship.lenght;
+    new_ship->is_destroyed  = ship.is_destroyed;
 
     new_ship->next = head->next;
     head->next = new_ship;

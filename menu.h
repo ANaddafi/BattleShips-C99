@@ -195,7 +195,7 @@ struct GameData load_game()
 
 struct GameData load_last_game()
 {
-
+    return load_last_game_file();
 }
 
 void exit_game()

@@ -18,8 +18,15 @@ struct Ship
     /// if a ship explodes, must be removed from the list
     struct point top, back;
     int lenght;
+    int is_destroyed;
     struct Ship *next;
 };
+
+#define WATER 'W'
+#define SHIP 'S'
+#define EXP 'E'
+#define EXPSHIP 'X'
+#define EMPTY ' '
 
 struct Map{
     struct Ship* ships_head;
@@ -67,6 +74,25 @@ void view_map(struct Map mp)
         for(j = 0; j < LEN; j++)
             //printf("%c ", mp.view[i][j]);
             printf("%c ", mp.view[i][j] == 'W' ? '.' : '#');
+        printf("\n");
+    }
+}
+
+void view_map_leaked(struct Map mp)
+{
+    int i, j;
+
+    printf(" ");
+    for(i = 1; i <= LEN; i++)
+        printf(" %d", i);
+    printf("\n");
+
+    for(i = 0; i < LEN; i++){
+        printf("%c ", i+'a');
+
+        for(j = 0; j < LEN; j++)
+            printf("%c ", mp.leaked[i][j]);
+            //printf("%c ", mp.leaked[i][j] == 'W' ? '.' : '#');
         printf("\n");
     }
 }

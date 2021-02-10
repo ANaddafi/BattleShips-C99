@@ -10,6 +10,7 @@
 
 #define DIST_USER_LIST "./saves/testdata.bin"
 #define DIST_MAP_LIST "./maps/map_list.txt"
+#define DIST_GAME_SAVE "./saves/testgame.txt"
 
 //////////////////////////////////////////////////////
 
@@ -21,6 +22,8 @@ struct Map get_map_by_order(int ord);
 struct Map get_map_from_file();
 struct Map get_new_map();
 struct Map get_bot_map();
+
+struct GameData load_last_game_file();
 
 void log(char err[1000], int ext);
 void print_user_list();
@@ -35,6 +38,37 @@ void log(char err[1000], int ext)
         exit(0);
     else
         system("cls");
+}
+
+struct GameData load_game_file(char game_name[100])
+{
+    char tmp_name[100];
+    strcpy(tmp_name, "./saves/");
+    strcat(tmp_name, game_name);
+
+    struct GameData ret_game;
+}
+
+struct GameData load_last_game_file()
+{
+
+}
+
+void save_game_file(struct GameData gamedata)
+{
+    /// its just for debuggin, use different files for final game
+
+    FILE *fgame = fopen(DIST_GAME_SAVE, "wb");
+    if(fgame == NULL)
+        log("FILE NOT FOUND!\n", 1);
+
+    /*if(fwrite(&gamedata, sizeof(struct GameData), 1, fgame) < 1)
+        log("Something went wrong!\n", 1);*/
+
+    /// you should save ships of maps!!
+    /// think of saving each game in a separated folder!
+
+    fclose(fgame);
 }
 
 void print_user_list()
@@ -113,6 +147,8 @@ void add_new_user(struct User new_user)
 
 struct User get_new_user()
 {
+    system("cls");
+
     struct User new_user;
     printf("Enter your username:\n");
 
