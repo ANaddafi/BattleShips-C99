@@ -7,22 +7,6 @@
 
 void log(char err[1000], int ext);
 
-void insert(struct Ship *head, struct Ship ship)
-{
-    struct Ship* new_ship = (struct Ship*)malloc(sizeof(struct Ship));
-
-    new_ship->top.col   = ship.top.col;
-    new_ship->top.row   = ship.top.row;
-    new_ship->back.col  = ship.back.col;
-    new_ship->back.row  = ship.back.row;
-    new_ship->lenght    = ship.lenght;
-    new_ship->remain    = ship.lenght;
-    new_ship->is_destroyed  = ship.is_destroyed;
-
-    new_ship->next = head->next;
-    head->next = new_ship;
-}
-
 struct Map get_map_from_map_file(char map_name[100])
 {
     struct Map ret_map;
@@ -35,7 +19,7 @@ struct Map get_map_from_map_file(char map_name[100])
 
     FILE *fin = fopen(tmp_name, "rb");
     if(fin == NULL)
-        log("ERROR in map.h\n", 1);
+        log("ERROR in read in map.h\n", 1);
 
 
     fread(&ret_map, sizeof(struct Map), 1, fin);
@@ -43,9 +27,7 @@ struct Map get_map_from_map_file(char map_name[100])
     ret_map.ships_head = (struct Ship*)malloc(sizeof(struct Ship));
     ret_map.ships_head->next = NULL;
 
-    struct Ship new_ship;
-    while(fread(&new_ship, sizeof(struct Ship), 1, fin) >= 1)
-        insert(ret_map.ships_head, new_ship);
+    make_ship(&ret_map);
 
     fclose(fin);
 

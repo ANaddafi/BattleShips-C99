@@ -108,6 +108,10 @@ void attack(int col, char row, int turn, struct GameData *game)
 
         return;
     }
+    else
+    {
+        log("Nothing to do!!", 0);
+    }
 }
 
 void play_bot_turn(int turn, struct GameData* game, int mod) // mod=1 -> bonus move!

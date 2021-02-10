@@ -45,6 +45,8 @@ struct GameData{
 /////////////////////////////////
 /// functions
 
+struct Ship* find_ship(struct Map mp, int col, char row);
+
 void print_user_full(struct User user)
 {
     //printf("----------\n");
@@ -85,7 +87,7 @@ void view_map(struct Map mp)
         printf("   %c   |", i+'A');
 
         for(j = 0; j < LEN; j++)
-            printf("   %c   |", mp.view[i][j] == 'W' ? WATER : SHIP);
+            printf("   %c   |", mp.view[i][j] == WATER ? WATER : SHIP);
         printf("\n");
 
         for(j = 0; j < (LEN+1); j++)  printf("       |");   printf("\n");
@@ -154,6 +156,56 @@ int get_lenght(struct Ship ship)
     return res;
 }
 
+
+void insert_ship(struct Ship *head, struct point p1, struct point p2)
+{
+    struct Ship* new_ship = (struct Ship*)malloc(sizeof(struct Ship));
+
+    new_ship->top.col = p1.col;
+    new_ship->top.row = p1.row;
+    new_ship->back.col = p2.col;
+    new_ship->back.row = p2.row;
+    new_ship->is_destroyed = 0;
+    new_ship->lenght = get_lenght(*new_ship);
+    new_ship->remain = new_ship->lenght;
+
+    new_ship->next = head->next;
+    head->next = new_ship;
+}
+
+
+void make_ship(struct Map *mp)
+{
+    int i, j;
+    for(i = 0; i < LEN; i++)
+        for(j = 0; j < LEN; j++)
+        {
+            if(mp->view[i][j] == WATER || mp->view[i][j] == SHIP)
+                continue;
+
+            struct point p1, p2;
+            p1 = get_point(j, i+'a');
+
+            if(mp->view[i][j] == 'V')
+            {
+                int t = i;
+                while(t < LEN && mp->view[t][j] == 'V')
+                    mp->view[t][j] = SHIP, t ++;
+
+                p2 = get_point(j, t-1+'a');
+            }
+            else if(mp->view[i][j] == 'H')
+            {
+                int t = j;
+                while(t < LEN && mp->view[i][t] == 'H')
+                    mp->view[i][t] = SHIP, t ++;
+
+                p2 = get_point(t-1, i+'a');
+            }
+
+            insert_ship(mp->ships_head, p1, p2);
+        }
+}
 
 struct Ship* find_ship(struct Map mp, int col, char row)
 {
