@@ -34,7 +34,7 @@ void print_map_list();
 void log(char err[1000], int ext)
 {
     printf("%s", err);
-    Sleep(1500);
+    Sleep(1200);
     if(ext)
         exit(0);
     else
@@ -83,12 +83,14 @@ void save_game_file(struct GameData *gamedata)
     fclose(fgame);
 }
 
+
 int ucmp(struct User *u1, struct User* u2)
 {
     return u2->total_score - u1->total_score;
 }
 
-struct User *get_user_list_sorted()
+
+struct User *get_user_list()
 {
     FILE *fusers = fopen(DIST_USER_LIST, "rb");
     if(fusers == NULL)
@@ -111,6 +113,29 @@ struct User *get_user_list_sorted()
     holder.total_score = cnt;
     ret_arr[0] = holder;
 
+    return ret_arr;
+}
+
+void replace_user_list(struct User* user_list)
+{
+    FILE *fusers = fopen(DIST_USER_LIST, "wb");
+    if(fusers == NULL)
+        fclose(fusers), log("FILE NOT FOUND!\n", 1);
+
+    int i, cnt = user_list[0].total_score;
+    for(i = 1; i < cnt; i++)
+    {
+        if(fwrite(user_list+i, sizeof(struct User), 1, fusers) < 1)
+            log("Error X\n", 1);
+    }
+
+    fclose(fusers);
+}
+
+struct User *get_user_list_sorted()
+{
+    struct User *ret_arr = get_user_list();
+    int cnt = ret_arr[0].total_score;
     qsort(ret_arr+1, cnt-1, sizeof(struct User), ucmp);
 
     return ret_arr;

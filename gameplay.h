@@ -81,6 +81,8 @@ void attack(int col, char row, int turn, struct GameData *game)
 
         if(target_ship->remain == 0) // fully exploded
         {
+            log("Hooray! You destroyed a ship!", 0);
+
             show_water(&(game->maps[1-turn]), target_ship);
 
             target_ship->is_destroyed = 1;
@@ -92,7 +94,7 @@ void attack(int col, char row, int turn, struct GameData *game)
 
         game->users[turn].current_score ++;
 
-        if(game->maps[1-turn].ships_head->next == NULL)
+        if(game->maps[1-turn].ships_head->next == NULL) // use is_lost, and check if all of ships are destroyed!
         {
             /// game over! YOU WON!
 
@@ -189,9 +191,17 @@ void play_game(struct GameData game)
         printf("--%s WON--\n", game.users[game.winner].user_name);
         Sleep(3000);
 
-        /// SAVES Users Scores!
-        /// use a new file, copy all users except user1 (save edited user1 instead) to new file,
-        /// then copy all users, except user2 (save edited user2 instead) to the main file!
+        struct User *user_list = get_user_list();
+        int cnt = user_list[0].total_score, i;
+        for(i = 1; i < cnt; i++){
+            if(strcmp(user_list[i].user_name, game.users[game.winner].user_name) == 0) // is winner suer
+               user_list[i].total_score += game.users[game.winner].current_score;
+
+            else if(strcmp(user_list[i].user_name, game.users[1-game.winner].user_name) == 0) // is loser user
+                user_list[i].total_score += game.users[1-game.winner].current_score / 2;
+        }
+
+        replace_user_list(user_list);
 
         printf("\nPress any key to exit...");
         getch();

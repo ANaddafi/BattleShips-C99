@@ -144,15 +144,22 @@ struct point get_point(int col, char row)
 }
 
 
-int get_lenght(struct Ship ship)
+int get_lenght_point(struct point p1, struct point p2)
 {
-    int dcol = ship.top.col - ship.back.col;
-    int drow = ship.top.row - ship.back.row;
+    int dcol = p1.col - p2.col;
+    int drow = p1.row - p2.row;
     if(dcol < 0)
         dcol = -dcol;
     if(drow < 0)
         drow = -drow;
     int res = (dcol + 1) * (drow + 1);
+    return res;
+}
+
+
+int get_lenght(struct Ship ship)
+{
+    int res = get_lenght_point(ship.top, ship.back);
     return res;
 }
 
@@ -201,7 +208,7 @@ void make_ship(struct Map *mp)
                 while(t < LEN && mp->view[t][j] == SHIP)
                 {
                     checked[t][j] = 1;
-                    if(mp->leaked[t][j] == EXP)
+                    if(mp->leaked[t][j] == EXP || mp->leaked[t][j] == EXPSHIP)
                         explod ++;
                     t++;
                 }
@@ -214,7 +221,7 @@ void make_ship(struct Map *mp)
                 while(t < LEN && mp->view[i][t] == SHIP)
                 {
                     checked[i][t] = 1;
-                    if(mp->leaked[i][t] == EXP)
+                    if(mp->leaked[i][t] == EXP || mp->leaked[i][t] == EXPSHIP)
                         explod ++;
                     t++;
                 }
@@ -224,11 +231,16 @@ void make_ship(struct Map *mp)
             else
             {
                 p2 = p1;
+                if(mp->leaked[i][j] == EXP || mp->leaked[i][j] == EXPSHIP)
+                    explod ++;
                 checked[i][j] = 1;
             }
 
-            insert_ship(mp->ships_head, p1, p2);
-            mp->ships_head->next->remain -= explod;
+            int ln = get_lenght_point(p1, p2);
+            if(ln > explod){
+                insert_ship(mp->ships_head, p1, p2);
+                mp->ships_head->next->remain = ln-explod;
+            }
         }
 }
 
