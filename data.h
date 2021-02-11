@@ -60,6 +60,7 @@ void log(char err[1000], int ext)
         CLS;
 }
 
+
 struct GameData load_game()
 {
     CLS;
@@ -72,6 +73,7 @@ struct GameData load_game()
     scanf("%d", &user_input);
     return get_save_by_order(user_input);
 }
+
 
 struct GameData load_game_file(char game_name[100])
 {
@@ -98,6 +100,7 @@ struct GameData load_game_file(char game_name[100])
 
     return gamedata;
 }
+
 
 struct GameData get_save_by_order(int ord)
 {
@@ -126,6 +129,7 @@ struct GameData get_save_by_order(int ord)
 
     return load_game_file(name);
 }
+
 
 struct GameData load_last_game()
 {
@@ -216,6 +220,7 @@ struct User *get_user_list()
     return ret_arr;
 }
 
+
 void replace_user_list(struct User* user_list)
 {
     FILE *fusers = fopen(DIST_USER_LIST, "wb");
@@ -231,6 +236,7 @@ void replace_user_list(struct User* user_list)
 
     fclose(fusers);
 }
+
 
 struct User *get_user_list_sorted()
 {
@@ -361,6 +367,7 @@ struct User get_new_user()
     return new_user;
 }
 
+
 void save_map(struct Map mp, char name[100])
 {
     char tmp_name[100];
@@ -402,6 +409,7 @@ void save_map(struct Map mp, char name[100])
 
     fclose(flist);
 }
+
 
 struct Map get_map_by_order(int ord)
 {
