@@ -103,7 +103,7 @@ void attack(int col, char row, int turn, struct GameData *game)
 
         game->users[turn].current_score ++;
 
-        if(game->maps[1-turn].ships_head->next == NULL) // use is_lost, and check if all of ships are destroyed!
+        if(game->maps[1-turn].ships_head->next == NULL)
         {
             /// game over! YOU WON!
 
@@ -221,6 +221,170 @@ void play_bot_turn(int turn, struct GameData* game, int mod) // mod=1 -> bonus m
 
 }
 
+int rocket_attack(int col, char row, struct GameData *game)
+{
+    /// return value: full = 0, water = 1, ship = 2
+
+    int turn = game->turn;
+    if(game->maps[1-turn].leaked[row-'a'][col-1] != EMPTY)
+            return 0;
+
+    char target = game->maps[1-turn].view[row-'a'][col-1];
+    if(target == WATER)
+    {
+        game->maps[1-turn].leaked[row-'a'][col-1] = WATER;
+        return 1;
+    }
+    if(target == SHIP)
+    {
+        game->maps[1-turn].leaked[row-'a'][col-1] = EXP;
+
+        struct Ship *target_ship = find_ship(game->maps[1-turn], col, row);
+        if(target_ship == NULL)
+            log("ERROR IN FINDING SHIP!\n", 1);
+
+        target_ship->remain --;
+        if(target_ship->remain == 0) // fully exploded
+        {
+            log("       Hooray! You destroyed a ship!", 0);
+            show_water(&(game->maps[1-turn]), target_ship);
+
+            target_ship->is_destroyed = 1;
+            if(destroy( &( game->maps[1-turn] ) ) == 0)
+                log("ERROR IN REMOVING SHIP!'n", 1);
+
+            game->users[turn].current_score += 25/target_ship->lenght;
+        }
+
+        game->users[turn].current_score ++;
+
+        if(game->maps[1-turn].ships_head->next == NULL)
+        {
+            /// game over! YOU WON!
+
+            game->finished = 1;
+            game->winner = turn;
+        }
+
+        return 2;
+    }
+
+    return 0;
+}
+
+void vertical_rocket(int col, struct GameData *game)
+{
+    int i, turn = game->turn;
+    for(i = 0; i < LEN; i++)
+    {
+        Sleep(1000);
+
+        char row = i+'a';
+        int result = rocket_attack(col, row, game);
+
+        if(result == 0) // nothing
+            continue;
+
+        prefix(turn, game->users[turn]);
+        view_map_leaked(game->maps[1-turn]);
+
+        if(result == 2) // ship
+            break;
+    }
+}
+
+void horizontal_rocket(char row, struct GameData *game)
+{
+    int i, turn = game->turn;
+    for(i = 1; i <= LEN; i++)
+    {
+        Sleep(1000);
+
+        int col = i;
+        int result = rocket_attack(col, row, game);
+
+        if(result == 0) // nothing
+            continue;
+
+        prefix(turn, game->users[turn]);
+        view_map_leaked(game->maps[1-turn]);
+
+        if(result == 2) // ship
+            break;
+    }
+}
+
+void use_rocket(struct GameData *game)
+{
+    int turn = game->turn;
+    if(game->users[turn].total_score < 100)
+        return;
+    game->users[turn].total_score -= 100;
+
+
+    CLS;
+    printf("****************************************\n");
+    printf("****** Ready to shoot the ROCKET! ******\n");
+    printf("****************************************\n");
+    Sleep(2000);
+
+    char rocket_dir = 'A';
+    int r_col = 0;
+    char r_row = 'a';
+
+    while(rocket_dir != 'V' && rocket_dir != 'H')
+    {
+        prefix(turn, game->users[turn]);
+        view_map_leaked(game->maps[1-turn]);
+
+        printf("       Enter direction, V for Vertical, H for Horizontal: >> ");
+        fflush(stdin);
+        scanf("%c", &rocket_dir);
+
+        if('a' <= rocket_dir && rocket_dir <= 'z')
+            rocket_dir = rocket_dir -'a'+'A';
+
+        if(rocket_dir != 'V' && rocket_dir != 'H')
+        {
+            log("       Invalid! Try again!", 0);
+            continue;
+        }
+
+        if(rocket_dir == 'V')
+        {
+            printf("       Enter the col: >> ");
+            fflush(stdin);
+            scanf("%d", &r_col);
+            if(r_col < 1 || r_col > LEN)
+            {
+                log("       Invalid! Try again!", 0);
+                rocket_dir = 'A';
+                continue;
+
+            }
+            else
+                vertical_rocket(r_col, game);
+        }
+        else
+        {
+            printf("       Enter the row: >> ");
+            fflush(stdin);
+            scanf("%c", &r_row);
+            if(r_row < 'a' || r_row > 'a'+LEN)
+            {
+                log("       Invalid! Try again!", 0);
+                rocket_dir = 'A';
+                continue;
+
+            }
+            else
+                horizontal_rocket(r_row, game);
+        }
+    }
+
+    Sleep(1500);
+}
+
 void play_turn(struct GameData* game, int mod) // mod=1 -> bonus move!
 {
     int turn = game->turn;
@@ -236,7 +400,10 @@ void play_turn(struct GameData* game, int mod) // mod=1 -> bonus move!
     }
 
     printf("\n       Enter Your Move: \t");
-    printf("(S for Save, X for Exit, Coordinates for shoot (row col))\n       >> ");
+    printf("(S for Save, X for Exit, Coordinates for shoot (row col)) ");
+    if(cur_user.total_score >= 100 && game->used_rocket[turn] == 0)
+        printf("\t<*> R for Rocket");
+    printf("\n       >> ");
 
     char row;
     int col;
@@ -253,6 +420,22 @@ void play_turn(struct GameData* game, int mod) // mod=1 -> bonus move!
     }
     else if(row == 'x')
         exit_with_save(game);
+    else if(row == 'r')
+    {
+        if(cur_user.total_score < 100){
+            printf("You don't have enough score for rocket!\n");
+            play_turn(game, 0);
+        }
+        else if(game->used_rocket[turn] > 0)
+        {
+            printf("You have already used your rocket!\n");
+            play_turn(game, 0);
+        }
+        else
+        {
+            use_rocket(game);
+        }
+    }
     else if(row < 'a' || row > 'j')
     {
         printf("       <%c> is Invalid input!", row);
