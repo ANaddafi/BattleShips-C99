@@ -2,7 +2,6 @@
 
 #define DATA
 #include <windows.h>
-#include <time.h>
 #include "map.h"
 
 #ifndef STRUCT
@@ -433,7 +432,6 @@ struct Map get_bot_map()
     int cnt=0, i;
     fscanf(fmaps, "%d", &cnt);
 
-    srand(time(0));
     int bot_input = rand()%cnt + 1;
 
     CLS;

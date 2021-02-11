@@ -1,5 +1,7 @@
 /// functions about running the game
 
+
+#include <time.h> //time(0)
 #ifndef STRUCT
 #include "structs.h"
 #endif // STRUCT
@@ -49,8 +51,16 @@ void show_water(struct Map *mp, struct Ship* ship)
 void prefix(int turn, struct User cur_user)
 {
     system("cls");
-    printf("Player%d: %s\t", turn+1, cur_user.user_name);
-    printf("Game Score: %d\tTotal Score: %d\n", cur_user.current_score, cur_user.total_score);
+    if(strcmp(cur_user.user_name, BOT_NAME)==0)
+    {
+        printf("Player%d: %s\t", turn+1, "Computer");
+        printf("Game Score: %d\n", cur_user.current_score);
+    }
+    else
+    {
+        printf("Player%d: %s\t", turn+1, cur_user.user_name);
+        printf("Game Score: %d\tTotal Score: %d\n", cur_user.current_score, cur_user.total_score);
+    }
 }
 
 void attack(int col, char row, int turn, struct GameData *game)
@@ -59,7 +69,7 @@ void attack(int col, char row, int turn, struct GameData *game)
 
     if(game->maps[1-turn].leaked[row-'a'][col-1] != EMPTY)
     {
-        log("You cannot shoot this cell! Select another one!\n", 0);
+        log("       You cannot shoot this cell! Select another one!\n", 0);
         play_turn(game, 0);
         return;
     }
@@ -80,7 +90,7 @@ void attack(int col, char row, int turn, struct GameData *game)
 
         if(target_ship->remain == 0) // fully exploded
         {
-            log("Hooray! You destroyed a ship!", 0);
+            log("       Hooray! You destroyed a ship!", 0);
 
             show_water(&(game->maps[1-turn]), target_ship);
 
@@ -103,7 +113,7 @@ void attack(int col, char row, int turn, struct GameData *game)
         else{
             prefix(turn, game->users[turn]);
             view_map_leaked(game->maps[1-turn]);
-            log("\nYAY! You got one more move!\n", 0);
+            log("\n       YAY! You got one more move!\n", 0);
             play_turn(game, 1);
         }
 
@@ -117,6 +127,54 @@ void attack(int col, char row, int turn, struct GameData *game)
 
 void play_bot_turn(int turn, struct GameData* game, int mod) // mod=1 -> bonus move!
 {
+    printf("\n       << COMPUTER IS MAKING A MOVE! >>\n");
+    Sleep(1000);
+    CLS;
+
+    int i, j,  empty_cells = 0;
+    for(i = 0; i < LEN; i++)
+        for(j = 0; j < LEN; j++)
+            if(game->maps[1-turn].leaked[i][j] == EMPTY)
+                empty_cells ++;
+
+    int bot_move = rand()%empty_cells +1;
+
+    int bot_col = 0;
+    char bot_row = 'a';
+
+    for(i = 0; i < LEN&& bot_move > 0; i++)
+        for(j = 0; j < LEN && bot_move > 0; j++)
+            if(game->maps[1-turn].leaked[i][j] == EMPTY)
+            {
+                bot_move --;
+                if(bot_move == 0)
+                    bot_col = j+1, bot_row = i+'a';
+            }
+
+    /*static int  last_col = -1;
+    static char last_row = 'a'-1;
+    printf("~~ bot_move  = %c %d ~~", bot_move);
+    printf("~~ last_move = %c %d ~~\n", last_move);
+    Sleep(1500);
+    last_move = bot_move;*/
+
+    CLS;
+    prefix(turn, game->users[turn]);
+    view_map_leaked(game->maps[1-turn]);
+    printf("\n       << Computer shot %c %d! >>\n", bot_row -'a'+'A', bot_col);
+    Sleep(1500);
+
+
+    attack(bot_col, bot_row, turn, game);
+
+    if(mod == 1)
+            return;
+
+    prefix(turn, game->users[turn]);
+    view_map_leaked(game->maps[1-turn]);
+    //printf("\n<< Computer shot %c %d! >>\n", bot_row -'a'+'A', bot_col);
+
+    Sleep(2500);
 
 }
 
@@ -130,12 +188,12 @@ void play_turn(struct GameData* game, int mod) // mod=1 -> bonus move!
 
     if(strcmp(cur_user.user_name, BOT_NAME) == 0)
     {
-        play_bot_turn(turn, game, 0);
+        play_bot_turn(turn, game, mod);
         return;
     }
 
-    printf("\nEnter Your Move: \t");
-    printf("(S for Save, X for Exit, Coordinates for shoot (row col))\n>> ");
+    printf("\n       Enter Your Move: \t");
+    printf("(S for Save, X for Exit, Coordinates for shoot (row col))\n       >> ");
 
     char row;
     int col;
@@ -154,7 +212,7 @@ void play_turn(struct GameData* game, int mod) // mod=1 -> bonus move!
         exit_with_save(game);
     else if(row < 'a' || row > 'j')
     {
-        printf("<%c> is Invalid input!", row);
+        printf("       <%c> is Invalid input!", row);
         Sleep(1500);
         fflush(stdin);
 
@@ -177,6 +235,9 @@ void play_turn(struct GameData* game, int mod) // mod=1 -> bonus move!
 
 void play_game(struct GameData game)
 {
+    if(strcmp(game.users[1].user_name, BOT_NAME) == 0)
+        srand(time(0));
+
     while(! game.finished)
     {
         play_turn(&game, 0);
@@ -216,11 +277,11 @@ void play_game(struct GameData game)
 void save_game(struct GameData *game)
 {
     char save_name[100];
-    printf("Enter a name for you save file: ");
+    printf("       Enter a name for you save file: ");
     scanf("%s", save_name);
 
     save_game_file(game, save_name);
-    log("\n--SAVED--\n", 0);
+    log("\n       --SAVED--\n", 0);
 }
 
 void save_last_game(struct GameData *game)

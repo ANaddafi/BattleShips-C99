@@ -22,7 +22,7 @@ struct Ship
     struct Ship *next;
 };
 
-#define WATER 'W'
+#define WATER '.'
 #define SHIP 'S'
 #define EXP 'E'
 #define EXPSHIP 'X'
