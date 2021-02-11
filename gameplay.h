@@ -216,12 +216,21 @@ void play_game(struct GameData game)
 
 void save_game(struct GameData *game)
 {
-    save_game_file(game);
+    char save_name[100];
+    printf("Enter a name for you save file: ");
+    scanf("%s", save_name);
+
+    save_game_file(game, save_name);
     log("\n--SAVED--\n", 0);
+}
+
+void save_last_game(struct GameData *game)
+{
+    save_game_file(game, LASTGAME);
 }
 
 void exit_with_save(struct GameData *game)
 {
-    save_game(game);
+    save_last_game(game);
     exit_game();
 }

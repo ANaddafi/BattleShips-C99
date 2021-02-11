@@ -10,7 +10,10 @@
 
 #define DIST_USER_LIST "./saves/testdata.bin"
 #define DIST_MAP_LIST "./maps/map_list.txt"
-#define DIST_LAST_GAME_SAVE "./saves/lastgame.bin"
+#define DIST_LAST_GAME_SAVE "./saves/lastgame"
+#define DIST_GAME_SAVE "./saves/"
+#define DIST_GAME_LIST "./saves/save_list.txt"
+#define LASTGAME "_lastgame_"
 
 //////////////////////////////////////////////////////
 
@@ -25,10 +28,14 @@ struct Map get_new_map();
 struct Map get_bot_map();
 
 struct GameData load_last_game_file();
+struct GameData show_menu();
+struct GameData get_save_by_order(int ord);
 
 void log(char err[1000], int ext);
 int print_user_list();
 void print_map_list();
+int print_save_list();
+
 
 /// error -> log
 void log(char err[1000], int ext)
@@ -41,20 +48,30 @@ void log(char err[1000], int ext)
         system("cls");
 }
 
+struct GameData load_game()
+{
+    CLS;
+    int cnt = print_save_list();
+    if(cnt == 0)
+        return show_menu();
+
+    printf("\n>> ");
+    int user_input = 0;
+    scanf("%d", &user_input);
+    return get_save_by_order(user_input);
+}
 
 struct GameData load_game_file(char game_name[100])
 {
-    char tmp_name[100];
-    strcpy(tmp_name, "./saves/");
-    strcat(tmp_name, game_name);
+    char tmp_name[100] = DIST_GAME_SAVE, tmp[100];
+    strcpy(tmp, game_name);
+    strcat(tmp, ".bin");
+    strcat(tmp_name, tmp);
 
-    struct GameData ret_game;
-}
+    printf("Loading %s...\n", tmp_name);
+    Sleep(1000);
 
-
-struct GameData load_last_game()
-{
-    FILE *fgame = fopen(DIST_LAST_GAME_SAVE, "rb");
+    FILE *fgame = fopen(tmp_name, "rb");
     if(fgame == NULL)
         log("FILE NOT FOUND!\n", 1);
 
@@ -70,10 +87,72 @@ struct GameData load_last_game()
     return gamedata;
 }
 
-
-void save_game_file(struct GameData *gamedata)
+struct GameData get_save_by_order(int ord)
 {
-    FILE *fgame = fopen(DIST_LAST_GAME_SAVE, "wb");
+    if(ord < 1)
+    {
+        //CLS;
+        log("Invalid! try again!\n", 0);
+        return load_game();
+    }
+
+    FILE *flist = fopen(DIST_GAME_LIST, "r");
+    if(flist == NULL)
+        log("FILE NOT FOUND!\n", 1);
+
+    char name[100];
+    int cnt = 0;
+    while(cnt < ord && fscanf(flist, "%s", name) > 0)
+        cnt ++;
+
+    if(cnt < ord)
+    {
+        //CLS;
+        log("Invalid! try again!", 0);
+        return load_game();
+    }
+
+    fclose(flist);
+
+    return load_game_file(name);
+}
+
+struct GameData load_last_game()
+{
+    return load_game_file(LASTGAME);
+}
+
+
+int print_save_list()
+{
+    FILE *flist = fopen(DIST_GAME_LIST, "r");
+    if(flist == NULL)
+        log("FILE NOT FOUND!\n", 1);
+
+    char name[100];
+    int cnt = 0;
+    while(fscanf(flist, "%s", name) > 0)
+    {
+        cnt ++;
+        printf("%d) %s\n", cnt, name);
+    }
+
+    fclose(flist);
+
+    return cnt;
+}
+
+
+void save_game_file(struct GameData *gamedata, char save_name[100])
+{
+    char tmp_name[100] = DIST_GAME_SAVE, tmp[100];
+    strcpy(tmp, save_name);
+    strcat(tmp, ".bin");
+    strcat(tmp_name, tmp);
+
+
+    FILE *fgame = fopen(tmp_name, "wb");
+
     if(fgame == NULL)
         log("FILE NOT FOUND!\n", 1);
 
@@ -81,6 +160,17 @@ void save_game_file(struct GameData *gamedata)
         log("Something went wrong!\n", 1);
 
     fclose(fgame);
+
+    if(strcmp(save_name, LASTGAME) == 0)
+        return;
+
+    FILE *flist = fopen(DIST_GAME_LIST, "a");
+    if(flist == NULL)
+        log("FILE NOT FOUND!\n", 1);
+    fprintf(flist, "%s\n", save_name);
+
+    fclose(flist);
+
 }
 
 

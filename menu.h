@@ -215,11 +215,6 @@ struct GameData init_game(int mod)
     return ret_game;
 }
 
-struct GameData load_game()
-{
-
-}
-
 void exit_game()
 {
     system("cls");
