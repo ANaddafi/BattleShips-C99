@@ -131,38 +131,81 @@ void play_bot_turn(int turn, struct GameData* game, int mod) // mod=1 -> bonus m
     Sleep(1000);
     CLS;
 
-    int i, j,  empty_cells = 0;
-    for(i = 0; i < LEN; i++)
-        for(j = 0; j < LEN; j++)
-            if(game->maps[1-turn].leaked[i][j] == EMPTY)
-                empty_cells ++;
+    static int  last_col = -1;
+    static char last_row = 'a'-1;
+    int bot_col = -1;
+    char bot_row = 'a'-1;
 
-    int bot_move = rand()%empty_cells +1;
+    int i, j, found = 0;
+    if(mod == 1 && game->maps[1-turn].leaked[last_row-'a'][last_col-1] == EXP)
+    {
+        //printf("\n~~~ WISELY ~~~\nlast_col=%d, last_row=%c\n", last_col, last_row);Sleep(1500);
 
-    int bot_col = 0;
-    char bot_row = 'a';
+        int new_col = last_col, new_col2 = -1;
+        char new_row = last_row, new_row2 = 'a'-1;
 
-    for(i = 0; i < LEN&& bot_move > 0; i++)
-        for(j = 0; j < LEN && bot_move > 0; j++)
-            if(game->maps[1-turn].leaked[i][j] == EMPTY)
+        for(i = -1; i <= 1 && found!=1; i++)
+            for(j = -1; j <= 1 && found!=1; j++) if(i*j == 0)
             {
-                bot_move --;
-                if(bot_move == 0)
-                    bot_col = j+1, bot_row = i+'a';
+                int tmp_col = last_col + i;
+                char tmp_row = last_row + j;
+                new_col = 2*last_col - tmp_col;
+                new_row = 2*last_row - tmp_row;
+
+                //printf("CHECKING IF %c %d is EXPLODED, and %c %d if FREE...\n", tmp_row, tmp_col, new_row, new_col);Sleep(2000);
+
+                if(tmp_col >= 0 && tmp_col < LEN && tmp_row >= 'a' && tmp_row < 'a'+LEN &&
+                   new_col >= 0 && new_col < LEN && new_row >= 'a' && new_row < 'a'+LEN &&
+                   game->maps[1-turn].leaked[tmp_row-'a'][tmp_col-1] == EXP &&
+                   game->maps[1-turn].leaked[new_row-'a'][new_col-1] == EMPTY)
+                {
+                        found = 1, bot_col = new_col, bot_row = new_row;
+                        //printf("**FOUND!* col=%d, row=%c**\n", new_col, new_row);Sleep(2000);
+                }
+                else if(tmp_col >= 0 && tmp_col < LEN && tmp_row >= 'a' && tmp_row < 'a'+LEN &&
+                        game->maps[1-turn].leaked[tmp_row-'a'][tmp_col-1] == EMPTY)
+                {
+                    new_col2 = tmp_col;
+                    new_row2 = tmp_row;
+                    //printf("*FOUND FREE! col=%d, row=%c\n*", new_col2, new_row2);Sleep(2000);
+                    found = -1;
+                }
             }
 
-    /*static int  last_col = -1;
-    static char last_row = 'a'-1;
-    printf("~~ bot_move  = %c %d ~~", bot_move);
-    printf("~~ last_move = %c %d ~~\n", last_move);
-    Sleep(1500);
-    last_move = bot_move;*/
+        if(found == -1 && bot_col == -1 && new_col2 != -1)
+            bot_col = new_col2,
+            bot_row = new_row2;
+
+    }
+    if(!found)
+    {
+        int empty_cells = 0;
+        for(i = 0; i < LEN; i++)
+            for(j = 0; j < LEN; j++)
+                if(game->maps[1-turn].leaked[i][j] == EMPTY)
+                    empty_cells ++;
+
+        int bot_move = rand()%empty_cells +1;
+
+        for(i = 0; i < LEN && bot_move > 0; i++)
+            for(j = 0; j < LEN && bot_move > 0; j++)
+                if(game->maps[1-turn].leaked[i][j] == EMPTY)
+                {
+                    bot_move --;
+                    if(bot_move == 0)
+                        bot_col = j+1, bot_row = i+'a';
+                }
+    }
+
+
+    last_col = bot_col;
+    last_row = bot_row;
 
     CLS;
     prefix(turn, game->users[turn]);
     view_map_leaked(game->maps[1-turn]);
     printf("\n       << Computer shot %c %d! >>\n", bot_row -'a'+'A', bot_col);
-    Sleep(1500);
+    Sleep(3500);
 
 
     attack(bot_col, bot_row, turn, game);
@@ -174,7 +217,7 @@ void play_bot_turn(int turn, struct GameData* game, int mod) // mod=1 -> bonus m
     view_map_leaked(game->maps[1-turn]);
     //printf("\n<< Computer shot %c %d! >>\n", bot_row -'a'+'A', bot_col);
 
-    Sleep(2500);
+    Sleep(3500);
 
 }
 
