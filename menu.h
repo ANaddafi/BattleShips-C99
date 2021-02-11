@@ -11,12 +11,13 @@
 struct GameData show_menu();
 struct GameData init_game(int mod);
 
-struct User get_user();
+struct User get_user(int turn);
 struct User get_bot();
 struct Map get_map();
 
 void show_scoreboard();
 void exit_game();
+
 
 struct GameData show_menu()
 {
@@ -30,13 +31,12 @@ struct GameData show_menu()
     printf("2) Play with computer\n");
     printf("3) Load game\n");
     printf("4) Load last game\n");
-    printf("5) Settings\n");
-    printf("6) ScoreBoard\n");
-    printf("7) Exit\n\n>> ");
+    printf("5) ScoreBoard\n");
+    printf("6) Exit\n\n>> ");
 
     int user_input = 0;
     scanf("%d", &user_input);
-    system("cls");
+    CLS;
 
     struct GameData ret_game;
 
@@ -59,26 +59,24 @@ struct GameData show_menu()
             return ret_game;
 
         case 5:
-            break;
-
-        case 6:
             show_scoreboard();
             printf("\nPress any key to show menu! ");
             getch();
             CLS;
             return show_menu();
 
-        case 7:
+        case 6:
             exit_game();
             break;
 
         default: // invalid input
             printf("\nInvalid input! please try again!");
             Sleep(1000);
-            system("cls");
+            CLS;
             return show_menu();
     }
 }
+
 
 void show_scoreboard()
 {
@@ -99,9 +97,10 @@ void show_scoreboard()
     }
 }
 
+
 struct User get_user(int turn)
 {
-    system("cls");
+    CLS;
     printf("Please choose a user for player%d:\n\n", turn);
     printf("1) Choose from available users\n");
     printf("2) New user\n\n>> ");
@@ -114,6 +113,11 @@ struct User get_user(int turn)
     {
         case 1:
             ret_user = get_user_from_file();
+            if(ret_user.current_score == -1)
+            {
+                CLS;
+                return get_user(turn);
+            }
             break;
 
         case 2:
@@ -123,12 +127,13 @@ struct User get_user(int turn)
         default:
             printf("\nInvalid input! please try again!");
             Sleep(1000);
-            system("cls");
+            CLS;
             ret_user = get_user(turn);
     }
 
     return ret_user;
 }
+
 
 struct User get_bot()
 {
@@ -144,7 +149,7 @@ struct User get_bot()
 
 struct Map get_map()
 {
-    system("cls");
+    CLS;
     printf("Please choose your map:\n\n");
     printf("1) Choose from available maps\n");
     printf("2) New map\n\n>> ");
@@ -166,12 +171,13 @@ struct Map get_map()
         default:
             printf("\nInvalid input! please try again!");
             Sleep(1000);
-            system("cls");
+            CLS;
             ret_map = get_map();
     }
 
     return ret_map;
 }
+
 
 struct GameData init_game(int mod)
 {
@@ -192,8 +198,11 @@ struct GameData init_game(int mod)
         map2 = get_bot_map();
     }
 
-    system("cls");
-    printf("<<< %s VS %s >>>\n", user1.user_name, user2.user_name);
+    CLS;
+    if(strcmp(user2.user_name, BOT_NAME) == 0)
+        printf("<<< %s VS Computer >>>\n", user1.user_name);
+    else
+        printf("<<< %s VS %s >>>\n", user1.user_name, user2.user_name);
     Sleep(2000);
 
     struct GameData ret_game;
@@ -213,10 +222,20 @@ struct GameData init_game(int mod)
     return ret_game;
 }
 
+
 void exit_game()
 {
-    system("cls");
-    printf("Thanks for playing!\n");
-    Sleep(2000);
+    CLS;
+    printf("//-----------------------------\\\\ \n");
+    printf("||      | |    |   |   |       || \n");
+    printf("||      | |    |   |   |       || \n");
+    printf("||      | |    |   |   |       || \n");
+    printf("||     Thanks for playing!     || \n");
+    printf("||                             || \n");
+    printf("||                             || \n");
+    printf("||                             || \n");
+    printf("||                             || \n");
+    printf("||_____________________________|| \n");
+    Sleep(3000);
     exit(0);
 }

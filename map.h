@@ -6,7 +6,11 @@
 #endif // STRUCT
 
 void log(char err[1000], int ext);
+void do_save(struct Map mp);
 
+struct Map map_maker();
+struct point ask_point();
+struct Map get_map_from_map_file(char map_name[100]);
 
 int minn(int a, int b)
 {
@@ -32,10 +36,6 @@ struct Map get_map_from_map_file(char map_name[100])
 
 
     fread(&ret_map, sizeof(struct Map), 1, fin);
-
-    //ret_map.ships_head = (struct Ship*)malloc(sizeof(struct Ship));
-    //ret_map.ships_head->next = NULL;
-
     make_ship(&ret_map);
 
     fclose(fin);
@@ -49,22 +49,7 @@ void do_save(struct Map mp)
     printf("       Enter name of your map: ");
     scanf("%s", name);
 
-    /*char tmp_name[100];
-    strcpy(tmp_name, "./maps/");
-    strcat(tmp_name, name);
-    strcat(tmp_name, ".bin");*/
-
     save_map(mp, name);
-
-    /*FILE *fout = fopen(tmp_name, "wb");
-    if(fout == NULL){
-        printf("Couldn't Save!\n");
-        return;
-    }
-
-    fwrite(&mp, sizeof(struct Map), 1, fout);
-
-    fclose(fout);*/
 }
 
 struct point ask_point()
@@ -121,9 +106,37 @@ struct Map map_maker()
                 continue;
             }
 
-            for(i = minn(pt1.col, pt2.col); i <= maxx(pt1.col, pt2.col); i++)
-                for(j = minn(pt1.row, pt2.row)-'a'; j <= maxx(pt1.row, pt2.row)-'a'; j++)
-                    res_map.view[j][i] = SHIP;
+            int C1 = minn(pt1.col, pt2.col), C2 = maxx(pt1.col, pt2.col);
+            int R1 = minn(pt1.row, pt2.row)-'a', R2 = maxx(pt1.row, pt2.row)-'a';
+
+            int bad_ship = 0;
+            for(i = R1; i <= R2; i++)
+                for(j = C1; j <= C2; j++)
+                {
+                    int k, l;
+                    for(k = -1; k <= 1; k++)
+                        for(l = -1; l <= 1; l++)
+                        {
+                            int t_col = j+k;
+                            int t_row = i+l;
+                            if(t_col >= 0 && t_col < LEN && t_row >= 0 && t_row < LEN)
+                            {
+                                if(res_map.view[t_row][t_col] == SHIP)
+                                    bad_ship ++;
+                            }
+                        }
+                }
+
+            if(bad_ship > 0)
+            {
+                printf("       There are some ships nearby!\n", k);
+                Sleep(2000);
+                continue;
+            }
+
+            for(i = R1; i <= R2; i++)
+                for(j = C1; j <= C2; j++)
+                    res_map.view[i][j] = SHIP;
             cnt[k]--;
         }
 

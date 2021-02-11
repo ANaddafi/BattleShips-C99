@@ -1,5 +1,8 @@
+/// Structures and their functions
+
 #define STRUCT
 #define LEN 10
+
 
 struct User{
     char user_name[100];
@@ -7,11 +10,13 @@ struct User{
     int current_score;
 };
 
+
 struct point
 {
     int col;
     char row;
 };
+
 
 struct Ship
 {
@@ -21,6 +26,7 @@ struct Ship
     int is_destroyed;
     struct Ship *next;
 };
+
 
 #define WATER '.'
 #define SHIP 'S'
@@ -34,6 +40,7 @@ struct Map{
     char leaked[LEN][LEN];
 };
 
+
 struct GameData{
     struct User users[2];
     struct Map maps[2];
@@ -45,15 +52,25 @@ struct GameData{
 /////////////////////////////////
 /// functions
 
+void view_map(struct Map mp);
+void make_ship(struct Map *mp);
+void print_user(struct User user);
+void view_map_leaked(struct Map mp);
+void print_user_full(struct User user);
+void show_stats(struct GameData gamedata);
+void insert_ship(struct Ship *head, struct point p1, struct point p2);
+
+int get_lenght_point(struct point p1, struct point p2);
+int get_lenght(struct Ship ship);
+int destroy(struct Map *mp);
+
+struct point get_point(int col, char row);
 struct Ship* find_ship(struct Map mp, int col, char row);
+
 
 void print_user_full(struct User user)
 {
-    //printf("----------\n");
-
     printf("%s, total = %d, cur = %d\n", user.user_name, user.total_score, user.current_score);
-
-    //printf("----------\n");
 }
 
 
@@ -243,6 +260,7 @@ void make_ship(struct Map *mp)
             }
         }
 }
+
 
 struct Ship* find_ship(struct Map mp, int col, char row)
 {

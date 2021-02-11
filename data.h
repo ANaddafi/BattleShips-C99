@@ -2,42 +2,54 @@
 
 #define DATA
 #include <windows.h>
+
+#ifndef MAP
 #include "map.h"
+#endif // MAP
 
 #ifndef STRUCT
 #include "structs.h"
 #endif // STRUCT
 
-#define DIST_USER_LIST "./saves/testdata.bin"
+#define DIST_USER_LIST "./saves/users.bin"
 #define DIST_MAP_LIST "./maps/map_list.txt"
-#define DIST_LAST_GAME_SAVE "./saves/lastgame"
 #define DIST_GAME_SAVE "./saves/"
 #define DIST_GAME_LIST "./saves/save_list.txt"
 #define LASTGAME "_lastgame_"
 
 //////////////////////////////////////////////////////
 
-struct User get_user_from_file();
-struct User get_user_by_order(int ord);
 struct User get_new_user();
+struct User *get_user_list();
+struct User get_user_from_file();
 struct User *get_user_list_sorted();
+struct User get_user_by_order(int ord);
 
+struct Map get_map_from_map_file(char name[100]);
 struct Map get_map_by_order(int ord);
 struct Map get_map_from_file();
 struct Map get_new_map();
 struct Map get_bot_map();
 
-struct GameData load_last_game_file();
 struct GameData show_menu();
+struct GameData load_game();
+struct GameData load_last_game();
+struct GameData load_last_game_file();
 struct GameData get_save_by_order(int ord);
+struct GameData load_game_file(char game_name[100]);
 
+void save_game_file(struct GameData *gamedata, char save_name[100]);
+void replace_user_list(struct User* user_list);
+void save_map(struct Map mp, char name[100]);
+void add_new_user(struct User new_user);
 void log(char err[1000], int ext);
-int print_user_list();
 void print_map_list();
+
 int print_save_list();
+int print_user_list();
+int ucmp(struct User *u1, struct User* u2);
 
 
-/// error -> log
 void log(char err[1000], int ext)
 {
     printf("%s", err);
@@ -45,7 +57,7 @@ void log(char err[1000], int ext)
     if(ext)
         exit(0);
     else
-        system("cls");
+        CLS;
 }
 
 struct GameData load_game()
@@ -91,7 +103,6 @@ struct GameData get_save_by_order(int ord)
 {
     if(ord < 1)
     {
-        //CLS;
         log("Invalid! try again!\n", 0);
         return load_game();
     }
@@ -107,7 +118,6 @@ struct GameData get_save_by_order(int ord)
 
     if(cnt < ord)
     {
-        //CLS;
         log("Invalid! try again!", 0);
         return load_game();
     }
@@ -240,10 +250,10 @@ int print_user_list()
     if(fusers == NULL)
         fclose(fusers), log("FILE NOT FOUND!\n", 1);
 
-    int cnt = 1;
+    int cnt = 0;
     struct User tmp_user;
     while(fread(&tmp_user, sizeof(struct User), 1, fusers))
-        printf("%d) ", cnt++), print_user(tmp_user);
+        printf("%d) ", ++cnt), print_user(tmp_user);
 
     fclose(fusers);
 
@@ -283,7 +293,7 @@ struct User get_user_by_order(int ord)
 
 struct User get_user_from_file()
 {
-    system("cls");
+    CLS;
 
     struct User ret_user;
 
@@ -291,12 +301,23 @@ struct User get_user_from_file()
 
     if(cnt == 0)
     {
-        printf("COMPLETE ME!\n");
+        CLS;
+        printf("No saved users!\n");
+        Sleep(1500);
+
+        ret_user.current_score = -1;
+        return ret_user;
     }
 
-    printf("\n>> ");
+    printf("\n-1) Back\n>> ");
     int user_input = 0;
     scanf("%d", &user_input);
+
+    if(user_input == -1)
+    {
+        ret_user.current_score = -1;
+        return ret_user;
+    }
 
     ret_user = get_user_by_order(user_input);
 
@@ -319,7 +340,7 @@ void add_new_user(struct User new_user)
 
 struct User get_new_user()
 {
-    system("cls");
+    CLS;
 
     struct User new_user;
     printf("Enter your username:\n");
@@ -333,7 +354,7 @@ struct User get_new_user()
 
     add_new_user(new_user);
 
-    system("cls");
+    CLS;
     printf("Welcome, %s!", user_input);
     log("\n", 0);
 
@@ -437,7 +458,7 @@ void print_map_list()
 
 struct Map get_map_from_file()
 {
-    system("cls");
+    CLS;
 
     struct Map ret_map;
 
@@ -449,12 +470,30 @@ struct Map get_map_from_file()
 
     ret_map = get_map_by_order(user_input);
 
-    //printf("\n:TEST:\n");
-    //view_map(ret_map);
-    //printf(":TEST:\n");
-    //Sleep(3000);
+    char req = 'A';
+    while(req != 'Y' && req != 'N')
+    {
+        CLS;
+        view_map(ret_map);
+        printf("\n       Do you want to use this map? (Y/N) ");
 
-    return ret_map;
+        fflush(stdin);
+        scanf("%c", &req);
+        if('a' <= req && req <= 'z')
+            req = req - 'a' + 'A';
+        if(req == 'Y')
+            return ret_map;
+        else if(req == 'N')
+        {
+            CLS;
+            return get_map_from_file();
+        }
+        else
+        {
+            log("Invalid input! try again!", 0);
+            continue;
+        }
+    }
 }
 
 
@@ -479,11 +518,10 @@ struct Map get_bot_map()
     int bot_input = rand()%cnt + 1;
 
     CLS;
-    printf("Bot chose map %d:\n", bot_input);
+    printf("Bot chose his map!\n");
+    Sleep(1500);
 
     struct Map bot_map = get_map_by_order(bot_input);
-    view_map(bot_map);
-    Sleep(3000);
 
     return bot_map;
 }

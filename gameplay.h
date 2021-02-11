@@ -1,6 +1,5 @@
 /// functions about running the game
 
-
 #include <time.h> //time(0)
 #ifndef STRUCT
 #include "structs.h"
@@ -10,12 +9,22 @@
 #include "data.h"
 #endif // DATA
 
-void exit_with_save(struct GameData *game);
-void save_game(struct GameData *game);
-void play_turn(struct GameData* game, int mod);
 
-//int min(int a, int b){return a > b ? b : a;}
-//int max(int a, int b){return a > b ? a : b;}
+void play_game(struct GameData game);
+void save_game(struct GameData *game);
+void use_rocket(struct GameData *game);
+void save_last_game(struct GameData *game);
+void exit_with_save(struct GameData *game);
+void prefix(int turn, struct User cur_user);
+void play_turn(struct GameData* game, int mod);
+void show_water(struct Map *mp, struct Ship* ship);
+void vertical_rocket(int col, struct GameData *game);
+void horizontal_rocket(char row, struct GameData *game);
+void play_bot_turn(int turn, struct GameData* game, int mod);
+void attack(int col, char row, int turn, struct GameData *game);
+
+int rocket_attack(int col, char row, struct GameData *game);
+
 
 void show_water(struct Map *mp, struct Ship* ship)
 {
@@ -48,9 +57,10 @@ void show_water(struct Map *mp, struct Ship* ship)
             mp->leaked[i][j] = EXPSHIP;
 }
 
+
 void prefix(int turn, struct User cur_user)
 {
-    system("cls");
+    CLS;
     if(strcmp(cur_user.user_name, BOT_NAME)==0)
     {
         printf("Player%d: %s\t", turn+1, "Computer");
@@ -62,6 +72,7 @@ void prefix(int turn, struct User cur_user)
         printf("Game Score: %d\tTotal Score: %d\n", cur_user.current_score, cur_user.total_score);
     }
 }
+
 
 void attack(int col, char row, int turn, struct GameData *game)
 {
@@ -124,6 +135,7 @@ void attack(int col, char row, int turn, struct GameData *game)
         log("Nothing to do!!", 0);
     }
 }
+
 
 void play_bot_turn(int turn, struct GameData* game, int mod) // mod=1 -> bonus move!
 {
@@ -221,6 +233,7 @@ void play_bot_turn(int turn, struct GameData* game, int mod) // mod=1 -> bonus m
 
 }
 
+
 int rocket_attack(int col, char row, struct GameData *game)
 {
     /// return value: full = 0, water = 1, ship = 2
@@ -272,6 +285,7 @@ int rocket_attack(int col, char row, struct GameData *game)
     return 0;
 }
 
+
 void vertical_rocket(int col, struct GameData *game)
 {
     int i, turn = game->turn;
@@ -292,6 +306,7 @@ void vertical_rocket(int col, struct GameData *game)
             break;
     }
 }
+
 
 void horizontal_rocket(char row, struct GameData *game)
 {
@@ -314,18 +329,22 @@ void horizontal_rocket(char row, struct GameData *game)
     }
 }
 
+
 void use_rocket(struct GameData *game)
 {
     int turn = game->turn;
-    if(game->users[turn].total_score < 100)
+    if(game->users[turn].total_score < 100 || game->used_rocket[turn] > 0)
         return;
     game->users[turn].total_score -= 100;
+    game->used_rocket[turn] = 1;
 
 
     CLS;
-    printf("****************************************\n");
-    printf("****** Ready to shoot the ROCKET! ******\n");
-    printf("****************************************\n");
+    printf("************************************************\n");
+    printf("************************************************\n");
+    printf("********** Ready to shoot the ROCKET! **********\n");
+    printf("************************************************\n");
+    printf("************************************************\n");
     Sleep(2000);
 
     char rocket_dir = 'A';
@@ -370,6 +389,8 @@ void use_rocket(struct GameData *game)
             printf("       Enter the row: >> ");
             fflush(stdin);
             scanf("%c", &r_row);
+            if('A' <= r_row && r_row <= 'Z')
+                r_row = r_row - 'A' +'a';
             if(r_row < 'a' || r_row > 'a'+LEN)
             {
                 log("       Invalid! Try again!", 0);
@@ -384,6 +405,7 @@ void use_rocket(struct GameData *game)
 
     Sleep(1500);
 }
+
 
 void play_turn(struct GameData* game, int mod) // mod=1 -> bonus move!
 {
@@ -459,6 +481,7 @@ void play_turn(struct GameData* game, int mod) // mod=1 -> bonus move!
 
 }
 
+
 void play_game(struct GameData game)
 {
     if(strcmp(game.users[1].user_name, BOT_NAME) == 0)
@@ -500,10 +523,11 @@ void play_game(struct GameData game)
     }
     else
     {
-        system("cls");
+        CLS;
         log("Error!\n", 1);
     }
 }
+
 
 void save_game(struct GameData *game)
 {
@@ -515,10 +539,12 @@ void save_game(struct GameData *game)
     log("\n       --SAVED--\n", 0);
 }
 
+
 void save_last_game(struct GameData *game)
 {
     save_game_file(game, LASTGAME);
 }
+
 
 void exit_with_save(struct GameData *game)
 {
