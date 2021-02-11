@@ -189,9 +189,11 @@ void play_game(struct GameData game)
         printf("--%s WON--\n", game.users[game.winner].user_name);
         Sleep(3000);
 
-        /// SAVES
+        /// SAVES Users Scores!
+        /// use a new file, copy all users except user1 (save edited user1 instead) to new file,
+        /// then copy all users, except user2 (save edited user2 instead) to the main file!
 
-        printf("Click to Close!");
+        printf("\nPress any key to exit...");
         getch();
         exit_game();
     }
@@ -205,7 +207,7 @@ void play_game(struct GameData game)
 void save_game(struct GameData *game)
 {
     save_game_file(game);
-    printf("\n--SAVED--\n!");
+    log("\n--SAVED--\n", 0);
 }
 
 void exit_with_save(struct GameData *game)

@@ -17,6 +17,7 @@ struct User get_user();
 struct User get_bot();
 struct Map get_map();
 
+void show_scoreboard();
 void exit_game();
 
 struct GameData show_menu()
@@ -63,7 +64,11 @@ struct GameData show_menu()
             break;
 
         case 6:
-            break;
+            show_scoreboard();
+            printf("\nPress any key to show menu! ");
+            getch();
+            CLS;
+            return show_menu();
 
         case 7:
             exit_game();
@@ -74,6 +79,25 @@ struct GameData show_menu()
             Sleep(1000);
             system("cls");
             return show_menu();
+    }
+}
+
+void show_scoreboard()
+{
+    printf("ScoreBoard:\n");
+
+    struct User* user_arr = get_user_list_sorted();
+    int siz = user_arr[0].total_score;
+
+    if(siz == 0)
+        printf("Nothing to Show!");
+    else
+    {
+        int i;
+        for(i = 1; i < siz; i++){
+            printf("%d) ", i);
+            print_user(user_arr[i]);
+        }
     }
 }
 

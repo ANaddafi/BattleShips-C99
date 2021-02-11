@@ -17,6 +17,7 @@
 struct User get_user_from_file();
 struct User get_user_by_order(int ord);
 struct User get_new_user();
+struct User *get_user_list_sorted();
 
 struct Map get_map_by_order(int ord);
 struct Map get_map_from_file();
@@ -26,7 +27,7 @@ struct Map get_bot_map();
 struct GameData load_last_game_file();
 
 void log(char err[1000], int ext);
-void print_user_list();
+int print_user_list();
 void print_map_list();
 
 /// error -> log
@@ -82,8 +83,41 @@ void save_game_file(struct GameData *gamedata)
     fclose(fgame);
 }
 
+int ucmp(struct User *u1, struct User* u2)
+{
+    return u2->total_score - u1->total_score;
+}
 
-void print_user_list()
+struct User *get_user_list_sorted()
+{
+    FILE *fusers = fopen(DIST_USER_LIST, "rb");
+    if(fusers == NULL)
+        fclose(fusers), log("FILE NOT FOUND!\n", 1);
+
+    int cnt = 1;
+    struct User tmp_user, *ret_arr;
+    ret_arr = (struct User*)malloc(sizeof(struct User));
+
+    while(fread(&tmp_user, sizeof(struct User), 1, fusers))
+    {
+        cnt ++;
+        ret_arr = (struct User*)realloc(ret_arr, sizeof(struct User) * cnt);
+        ret_arr[cnt-1] = tmp_user;
+    }
+
+    fclose(fusers);
+
+    struct User holder;
+    holder.total_score = cnt;
+    ret_arr[0] = holder;
+
+    qsort(ret_arr+1, cnt-1, sizeof(struct User), ucmp);
+
+    return ret_arr;
+}
+
+
+int print_user_list()
 {
     printf("Saved Users:\n");
 
@@ -97,6 +131,8 @@ void print_user_list()
         printf("%d) ", cnt++), print_user(tmp_user);
 
     fclose(fusers);
+
+    return cnt;
 }
 
 
@@ -136,7 +172,12 @@ struct User get_user_from_file()
 
     struct User ret_user;
 
-    print_user_list();
+    int cnt = print_user_list();
+
+    if(cnt == 0)
+    {
+        printf("COMPLETE ME!\n");
+    }
 
     printf("\n>> ");
     int user_input = 0;
