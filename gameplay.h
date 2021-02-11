@@ -59,8 +59,7 @@ void attack(int col, char row, int turn, struct GameData *game)
 
     if(game->maps[1-turn].leaked[row-'a'][col-1] != EMPTY)
     {
-        system("cls");
-        log("You cannot shot this cell! Select another one!\n", 0);
+        log("You cannot shoot this cell! Select another one!\n", 0);
         play_turn(game, 0);
         return;
     }

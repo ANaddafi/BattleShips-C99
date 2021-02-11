@@ -2,6 +2,7 @@
 
 #define DATA
 #include <windows.h>
+#include <time.h>
 #include "map.h"
 
 #ifndef STRUCT
@@ -400,7 +401,6 @@ struct Map get_map_from_file()
 
     struct Map ret_map;
 
-    system("cls");
     print_map_list();
 
     int user_input;
@@ -410,7 +410,7 @@ struct Map get_map_from_file()
     ret_map = get_map_by_order(user_input);
 
     //printf("\n:TEST:\n");
-    view_map(ret_map);
+    //view_map(ret_map);
     //printf(":TEST:\n");
     //Sleep(3000);
 
@@ -426,8 +426,22 @@ struct Map get_new_map()
 
 struct Map get_bot_map()
 {
-    /// not complete
+    FILE *fmaps = fopen(DIST_MAP_LIST, "r");
+    if(fmaps == NULL)
+        fclose(fmaps), log("FILE NOT FOUND!\n", 1);
 
-    struct Map bot_map;
+    int cnt=0, i;
+    fscanf(fmaps, "%d", &cnt);
+
+    srand(time(0));
+    int bot_input = rand()%cnt + 1;
+
+    CLS;
+    printf("Bot chose map %d:\n", bot_input);
+
+    struct Map bot_map = get_map_by_order(bot_input);
+    view_map(bot_map);
+    Sleep(3000);
+
     return bot_map;
 }
