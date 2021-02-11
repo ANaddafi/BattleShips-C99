@@ -340,6 +340,47 @@ struct User get_new_user()
     return new_user;
 }
 
+void save_map(struct Map mp, char name[100])
+{
+    char tmp_name[100];
+    strcpy(tmp_name, "./maps/");
+    strcat(tmp_name, name);
+    strcat(tmp_name, ".bin");
+
+    FILE *fout = fopen(tmp_name, "wb");
+    if(fout == NULL){
+        printf("Couldn't Save!\n");
+        return;
+    }
+    if(fwrite(&mp, sizeof(struct Map), 1, fout) < 1){
+        printf("Couldn't Save!\n");
+        return;
+    }
+    fclose(fout);
+
+    FILE *flist = fopen(DIST_MAP_LIST, "a");
+
+    char map_name[100];
+    strcpy(map_name, name);
+    strcat(map_name, ".bin");
+
+    fprintf(flist, "%s\n", map_name);
+
+    fclose(flist);
+
+    flist = fopen(DIST_MAP_LIST, "r+");
+    if(flist == NULL){
+        printf("Couldn't Update map list!\n");
+        return;
+    }
+
+    int cnt;
+    fscanf(flist, "%d", &cnt);
+    fseek(flist, 0, SEEK_SET);
+    fprintf(flist, "%d", cnt+1);
+
+    fclose(flist);
+}
 
 struct Map get_map_by_order(int ord)
 {
@@ -419,7 +460,10 @@ struct Map get_map_from_file()
 
 struct Map get_new_map()
 {
-
+    struct Map new_map;
+    new_map = map_maker();
+    make_ship(&new_map);
+    return new_map;
 }
 
 
@@ -429,7 +473,7 @@ struct Map get_bot_map()
     if(fmaps == NULL)
         fclose(fmaps), log("FILE NOT FOUND!\n", 1);
 
-    int cnt=0, i;
+    int cnt=0;
     fscanf(fmaps, "%d", &cnt);
 
     int bot_input = rand()%cnt + 1;

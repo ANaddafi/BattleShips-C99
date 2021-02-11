@@ -9,8 +9,6 @@
 #include "data.h"
 
 struct GameData show_menu();
-struct GameData load_game();
-struct GameData load_last_game();
 struct GameData init_game(int mod);
 
 struct User get_user();

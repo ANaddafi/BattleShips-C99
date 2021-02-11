@@ -269,7 +269,7 @@ void play_turn(struct GameData* game, int mod) // mod=1 -> bonus move!
         if(mod == 1)
             return;
 
-        prefix(turn, cur_user);
+        prefix(turn, game->users[turn]);
         view_map_leaked(game->maps[1-turn]);
         Sleep(1500);
     }
@@ -292,7 +292,12 @@ void play_game(struct GameData game)
     {
         CLS;
         printf("--%s WON--\n", game.users[game.winner].user_name);
-        Sleep(3000);
+        Sleep(1000);
+
+        int win = game.winner;
+        printf("%s \tgot %d scores!\n%s \tgot %d scores!\n", game.users[win].user_name, game.users[win].current_score,
+                                                            game.users[1-win].user_name, game.users[1-win].current_score/2);
+        Sleep(2500);
 
         struct User *user_list = get_user_list();
         int cnt = user_list[0].total_score, i;
